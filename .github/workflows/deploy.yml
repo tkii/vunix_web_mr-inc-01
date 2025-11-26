@@ -17,7 +17,8 @@ jobs:
     steps:
       # コードを取得
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
 
       # SSH接続用キーファイルを設定
       - name: Set up SSH key
