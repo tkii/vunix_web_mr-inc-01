@@ -1,45 +1,37 @@
-name: Deploy to Xserver
+name: Deploy to Server
 
 on:
   push:
     branches:
-      - main
+      - main  # mainブランチにpushされたときに実行
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest  # 実行するOSを指定
+    env: # GitHub Secretsから取得した内容で環境変数を設定
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+
     steps:
-      - name: Checkout repo
+      # コードを取得
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build SPA
-        run: pnpm run build
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.XSERVER_SSH_KEY }}
-
-      - name: Add Xserver host key
-        env:
-          XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
+      # SSH接続用キーファイルを設定
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -p 10022 "${XSERVER_HOST}" >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> ~/.ssh/known_hosts
 
-      - name: Deploy via SCP
-        env:
-          XSERVER_HOST: ${{ secrets.XSERVER_HOST }}
-          XSERVER_USER: ${{ secrets.XSERVER_USER }}
-          XSERVER_REMOTE_PATH: ${{ secrets.XSERVER_REMOTE_PATH }}
+      # SSH接続を行い、Xserver上でpullしてデプロイを行う
+      - name: Deploy to server
         run: |
-          scp -P 10022 -o StrictHostKeyChecking=yes -r dist/* \
-            "${XSERVER_USER}@${XSERVER_HOST}:${XSERVER_REMOTE_PATH}/"
+          ssh -p $SSH_PORT $SSH_USERNAME@$SSH_HOST << 'EOF'
+            cd /home/xs870764/v-c.dev/public_html/mr-01.v-c.dev || exit
+            git pull origin main || exit
+          EOF
