@@ -31,6 +31,6 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -p $SSH_PORT $SSH_USERNAME@$SSH_HOST << 'EOF'
-            cd home/xs870764/v-c.dev/public_html/mr-01.v-c.dev || exit
+            cd /home/xs870764/v-c.dev/public_html/mr-01.v-c.dev || exit
             git pull origin main || exit
           EOF
