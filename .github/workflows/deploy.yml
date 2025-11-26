@@ -1,27 +1,36 @@
-name: deploy to remote
+name: Deploy to Server
 
 on:
   push:
     branches:
-      - master
- 
+      - main  # mainブランチにpushされたときに実行
+
 jobs:
   deploy:
- 
-    runs-on: ubuntu-latest
- 
+    runs-on: ubuntu-latest  # 実行するOSを指定
+    env: # GitHub Secretsから取得した内容で環境変数を設定
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+
     steps:
-      - uses: actions/checkout@v1
- 
-      - name: ssh key generate
-        run: echo "$SSH_PRIVATE_KEY" > key && chmod 600 key
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
- 
-      - name: rsync deploy
-        run: rsync -auzrv --delete ./ $SSH_USER@$SSH_HOST:$DEPLOY_PATH --exclude ".git/" --exclude ".github/"  -e "ssh -i key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p ${SSH_PORT}"
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+      # コードを取得
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # SSH接続用キーファイルを設定
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> ~/.ssh/known_hosts
+
+      # SSH接続を行い、Xserver上でpullしてデプロイを行う
+      - name: Deploy to server
+        run: |
+          ssh -p $SSH_PORT $SSH_USERNAME@$SSH_HOST << 'EOF'
+            cd /v-c.dev/public_html/v-c.dev || exit
+            git pull origin main || exit
+          EOF
