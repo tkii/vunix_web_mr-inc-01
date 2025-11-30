@@ -21,7 +21,7 @@
 19.clients
 20.approch area
 21.progress-bar
-22.cta 
+22.cta
 23.social area
 24. footer
 25. testimonials
@@ -442,7 +442,7 @@ var {
 }
 
 /*---------------------------
-	List Style 
+	List Style
 ---------------------------*/
 ul,
 ol {
@@ -633,7 +633,7 @@ ol ul {
 }
 
 /*=========================
-    Section Separation 
+    Section Separation
 ==========================*/
 .slick-dotted.slick-slider {
   margin-bottom: 0;
@@ -9787,7 +9787,7 @@ iframe {
 }
 
 /*===============================
-    Background Color 
+    Background Color
 =================================*/
 .bg-color-primary {
   background: var(--color-primary);
@@ -9818,7 +9818,7 @@ iframe {
 }
 
 /*===========================
-Background Image 
+Background Image
 =============================*/
 .bg_image {
   background-repeat: no-repeat;
@@ -10492,7 +10492,7 @@ textarea:-ms-input-placeholder {
 }
 
 /*=============================
-	Overlay styles 
+	Overlay styles
 ==============================*/
 [data-overlay],
 [data-black-overlay],
@@ -10596,7 +10596,7 @@ textarea:-ms-input-placeholder {
 }
 
 /*------------------------------
-    Scroll Up 
+    Scroll Up
 --------------------------------*/
 #scrollUp {
   width: 70px;
@@ -14053,9 +14053,9 @@ Copyright (c) 2015 Daniel Eden
   opacity: 1;
 }
 
-/* -------------------------------- 
+/* --------------------------------
 
-xclip 
+xclip
 
 -------------------------------- */
 .cd-headline.clip span {
